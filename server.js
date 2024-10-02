@@ -1,5 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
@@ -12,7 +15,14 @@ app.post('/chat', async(req, res)=>{
     console.log(question);
 
     try{ 
-
+       const response = await fetch('https://api.openai.com/v1/chat/completions',{
+        mthod: 'POST',
+        headers:{
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({})
+       });
     }catch(error){
 
     }
