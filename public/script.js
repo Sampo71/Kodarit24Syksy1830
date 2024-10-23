@@ -14,9 +14,9 @@ async function sendMessage()
     console.log(userInput)
 
     // clears input field
-    document.getElementById('user-input').value = '';
+    document.getElementById('user-input');
 
-    addMessageToChatBox(userInput);
+    addMessageToChatBox('You:' + userInput,'user-message');
     
     try{
         const response = await fetch('/chat',{
@@ -30,18 +30,20 @@ async function sendMessage()
         const data = await response.json();
     
         console.log(data);
-        addMessageToChatBox(data.reply);
+        addMessageToChatBox(data.reply, 'bot-message');
     }catch(error){
        console.error('Error', error);
-       addMessageToChatBox('ChatGPT: Something went wrong');
+       addMessageToChatBox('ChatGPT: Something went wrong','bot-message');
     }
 
-    //Clear input field
+    //Clears input field
     document.getElementById('user-input').value = '';
 }
-function addMessageToChatBox(message){
+function addMessageToChatBox(message,className){
     //Creates new div
     const messageElement = document.createElement('div');
+    messageElement.classList.add('message',className);
+
     //Adding user message to div
     messageElement.textContent = message;
     console.log(messageElement);
