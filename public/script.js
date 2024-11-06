@@ -7,7 +7,7 @@ document.getElementById('user-input').addEventListener('keypress', function(e){
     }
 });
 
-function sendImages(){
+async function sendImages(){
     const imageInput = document.getElementById('image-input');
     const files = imageInput.files;
     if(files.length === 0){
@@ -21,6 +21,15 @@ function sendImages(){
       formData.append('images',files[i]);
 
       console.log(formData)
+   }
+
+   try{
+       const response = await fetch('/upload-Images',{
+           method:'POST',
+           body:formData
+       })
+   }catch(error){
+       console.error('Error:',error);
    }
     
 }
