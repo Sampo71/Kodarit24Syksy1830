@@ -18,6 +18,8 @@ const client = new vision.ImageAnnotatorClient({keyFilename:'omaope-vision.json'
 
 let koealueTekstina = '';
 let context =[] //ChatGPT keskustelulista
+let currentQuestion ='';
+let correctAnswer = '';
 
 app.post('/chat', async(req, res)=>{
     const question = req.body.question;
@@ -71,7 +73,7 @@ app.post('/upload-Images',upload.array('images',10) ,async(req,res)=>{
         }))
 
         koealueTekstina = texts.join('');
-        console.log(koealueTekstina);
+       // console.log(koealueTekstina);
         context =[{role:'user', content:koealueTekstina}];
 
         const response = await fetch('https://api.openai.com/v1/chat/completions',{
@@ -83,13 +85,30 @@ app.post('/upload-Images',upload.array('images',10) ,async(req,res)=>{
         body: JSON.stringify({
             model:'gpt-4o-mini',
             messages: context.concat([
-                {role:'user', content: 'Luo yksinkertainen ja selkeä kysymys yllä olevasta tekstistä suomeksi vain yksi asia kerrallaan'}
+                {role:'user', content: 'Luo yksinkertainen ja selkeä kysymys ja vastaus yllä olevasta tekstistä suomeksi.Kysy vain yksi asia kerrallaan'}
             ]),
             max_tokens:150
         })
     });
     const data = await response.json();
-    console.log(data);
+    console.log(data.choices[0].message.content);
+    const responseText = data.choices[0].message.content.trim();
+
+    const [question, answer] = responseText.includes('Vastaus') ? responseText.split('Vastaus') : [response, null];
+
+    console.log("Kysymys:" + question);
+    console.log("Vastaus:" + answer);
+
+    if(!question || !answer){
+        return res.status(400).json({error:'Please provide cleaner text'})
+    }
+    currentQuestion = question.trim();
+    correctAnswer = answer.trim();
+
+    context.push({role:'assistant',content:`Kysymys: ${currentQuestion}`});
+    context.push({role:'assistant',content:`Vastaus: ${correctAnswer}`});
+
+    res.json({question: currentQuestion, answer: correctAnswer});
 
     }catch(error){
         console.error('Error', error.message);
