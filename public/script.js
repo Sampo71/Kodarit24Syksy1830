@@ -16,12 +16,21 @@ async function sendAnswer(){
 
    console.log(answerInput);
    addMessageToChatBox('You: ' + answerInput,'user-message', 'omaopebox');
-   document.getElementById('answer-Input').value ='';
    try{
+       const response = await fetch('/check-answer',{
+           method:'POST',
+           headers:{
+               'content-Type':'application/json'
+            },
+            body:JSON.stringify({user_answer: answerInput, correct_answer: correctAnswer})
+        });
+        const data = await response.json();
 
-   }catch(error){
-       console.log('Error:',error);
-   }
+        addMessageToChatBox('OmaOpe: ' + data.evaluation, 'bot-message', 'omaopebox');
+    }catch(error){
+        console.log('Error:',error);
+    }
+    document.getElementById('answer-input').value ='';
 }
 
 async function sendImages(){
